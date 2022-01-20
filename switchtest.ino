@@ -3,14 +3,11 @@
 #define SWITCH_PRO_CONTROLLER_VENDOR_ID 0x0F0D
 #define SWITCH_PRO_CONTROLLER_PRODUCT_ID 0x0092
 
-#define REPORT_ID 3
-
 const uint8_t reportDescription[] = {
   0x05, 0x01,           /*  Usage Page (Generic Desktop) */ \
   
   0x09, 0x05,           /*  Usage (Joystick) */ \
   0xA1, 0x01,           /*  Collection (Application) */ \
-  0x85, REPORT_ID, \
   /* buttons */ \
   0x15, 0x00,           /*  Logical Minimum (0) */ \
   0x25, 0x01,           /*  Logical Maximum (1) */ \
@@ -95,7 +92,28 @@ public:
       DPAD_NEUTRAL = 8,
   };
 
+    // YBAXLR Zl Zr - + Lc Rc HOME CAP
   enum {
+      BUTTON_Y = 0,
+      BUTTON_B = 1,
+      BUTTON_A = 2,
+      BUTTON_X = 3,
+      BUTTON_L = 4,
+      BUTTON_R = 5,
+      BUTTON_ZL = 6,
+      BUTTON_ZR = 7,
+      BUTTON_MINUS = 8,
+      BUTTON_PLUS = 9,
+      BUTTON_LEFT_CLICK = 10,
+      BUTTON_RIGHT_CLICK = 11,
+      BUTTON_HOME = 12,
+      BUTTON_CAPTURE = 13,
+      BUTTON_EXTRA1 = 14,
+      BUTTON_EXTRA2 = 15,
+  };
+
+
+/*  enum {
       BUTTON_B = 0,
       BUTTON_A = 1,
       BUTTON_X = 2,
@@ -110,9 +128,7 @@ public:
       BUTTON_HOME = 11,
       BUTTON_LEFT_CLICK = 12,
       BUTTON_RIGHT_CLICK = 13,
-      BUTTON_EXTRA1 = 14,
-      BUTTON_EXTRA2 = 15,
-  };
+  }; */
 
   void button(uint8_t b, bool val) {
     uint16_t mask = ((uint16_t)1 << b);
@@ -152,9 +168,9 @@ public:
     report.ledRX = v ? 1 : 0;
   }
   
-  HIDSwitchController(USBHID& HID, uint8_t reportID=REPORT_ID) // HID_JOYSTICK_REPORT_ID;
-            : HIDReporter(HID, NULL, (uint8_t*)&report, sizeof(report), reportID) {
-        report.reportID = reportID; 
+  HIDSwitchController(USBHID& HID) 
+            : HIDReporter(HID, NULL, (uint8_t*)&report, sizeof(report), 0) {
+        report.reportID = 0; 
         report.buttons = 0;
         report.dpad = DPAD_NEUTRAL;
         report.leftX = 128;
@@ -171,19 +187,22 @@ USBHID HID;
 HIDSwitchController controller(HID);
 
 void setup() {
-  USBComposite.setVendorId(SWITCH_PRO_CONTROLLER_VENDOR_ID);
+  USBComposite.setVendorId(SWITCH_PRO_CONTROLLER_VENDOR_ID+1);
   USBComposite.setProductId(SWITCH_PRO_CONTROLLER_PRODUCT_ID);
   HID.setReportDescriptor(reportDescription, sizeof(reportDescription));
   HID.registerComponent();
   USBComposite.begin();  
   while (!USBComposite);
+  delay(1000);
 }
 
 void loop() {
-  for (int i=0; i<16; i++) {
-    controller.button(i, true);
+  for (int i=0; i<=0; i++) {
+    controller.button(i,true);
     controller.sendReport();
-    controller.button(i, false);
-    delay(2000);
+    delay(100);
+    controller.button(i,false);
+    controller.sendReport();
+    delay(100);
   }
 }
