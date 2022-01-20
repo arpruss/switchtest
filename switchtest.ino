@@ -187,7 +187,7 @@ USBHID HID;
 HIDSwitchController controller(HID);
 
 void setup() {
-  USBComposite.setVendorId(SWITCH_PRO_CONTROLLER_VENDOR_ID+1);
+  USBComposite.setVendorId(SWITCH_PRO_CONTROLLER_VENDOR_ID);
   USBComposite.setProductId(SWITCH_PRO_CONTROLLER_PRODUCT_ID);
   HID.setReportDescriptor(reportDescription, sizeof(reportDescription));
   HID.registerComponent();
@@ -197,12 +197,22 @@ void setup() {
 }
 
 void loop() {
-  for (int i=0; i<=0; i++) {
+  controller.X(16);
+  controller.sendReport();
+  delay(300);
+  controller.X(255-16);
+  controller.sendReport();
+  delay(300);
+  controller.X(128);
+  controller.sendReport();
+  delay(300);
+  /*
+   for (int i=0; i<=0; i++) {
     controller.button(i,true);
     controller.sendReport();
     delay(100);
     controller.button(i,false);
     controller.sendReport();
     delay(100);
-  }
+  } */
 }
