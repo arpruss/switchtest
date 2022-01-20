@@ -1,6 +1,6 @@
 #include <USBComposite.h>
 
-#define SWITCH_CONTROLLER_VENDOR_ID 0x0F0D // based on Hori FightStick
+#define SWITCH_CONTROLLER_VENDOR_ID 0x0F0D
 #define SWITCH_CONTROLLER_PRODUCT_ID 0x0092
 
 const uint8_t reportDescription[] = {
@@ -52,14 +52,6 @@ const uint8_t reportDescription[] = {
   0x95, 0x08,           /*  Report Count (1) */ \
   0x91, 0x02,           /*  Output (2) */ \
   0xC0,                 /*  End Collection */
-};
-
-/* D-pad state */
-enum SwitchProLEDs {
-  NONE = 0x00, 
-  TX   = 0x01, 
-  RX   = 0x02, 
-  BOTH = 0x03, /* Turn on RX and TX LEDs */
 };
 
 typedef struct {
