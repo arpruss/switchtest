@@ -1,7 +1,7 @@
 #include <USBComposite.h>
 
-#define SWITCH_PRO_CONTROLLER_VENDOR_ID 0x0F0D
-#define SWITCH_PRO_CONTROLLER_PRODUCT_ID 0x0092
+#define SWITCH_CONTROLLER_VENDOR_ID 0x0F0D // based on Hori FightStick
+#define SWITCH_CONTROLLER_PRODUCT_ID 0x0092
 
 const uint8_t reportDescription[] = {
   0x05, 0x01,           /*  Usage Page (Generic Desktop) */ \
@@ -24,13 +24,13 @@ const uint8_t reportDescription[] = {
   0x25, 0x07,           /*  Logical Maximum (7) */ \
   0x46, 315&0xFF,315>>8, /*  Physical Maximum (315) */ \
   0x75, 0x04,           /*  Report Size (4) */ \
-  0x95, 0x01,           /*  Report Count (8) */ \
+  0x95, 0x01,           /*  Report Count (1) */ \
   0x65, 20,             /*  Unit (20) */ \
   0x09, 57,             /*  Usage (57) */ \
   0x81, 66,             /*  Input (66) */ \
     /* additional nibble here for Switch Pro Controller? */ \
   0x65, 0,              /*  Unit (0) */ \
-  0x95, 0x01,           /*  Report Count (8) */ \
+  0x95, 0x01,           /*  Report Count (1) */ \
   0x81, 1,              /*  Input (1) */ \
     /* sticks */ \
   0x26, 255 & 0xFF, 255 >> 8,    /*  Logical Maximum (255) */ \
@@ -187,8 +187,8 @@ USBHID HID;
 HIDSwitchController controller(HID);
 
 void setup() {
-  USBComposite.setVendorId(SWITCH_PRO_CONTROLLER_VENDOR_ID);
-  USBComposite.setProductId(SWITCH_PRO_CONTROLLER_PRODUCT_ID);
+  USBComposite.setVendorId(SWITCH_CONTROLLER_VENDOR_ID);
+  USBComposite.setProductId(SWITCH_CONTROLLER_PRODUCT_ID);
   HID.setReportDescriptor(reportDescription, sizeof(reportDescription));
   HID.registerComponent();
   USBComposite.begin();  
