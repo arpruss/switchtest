@@ -1,7 +1,7 @@
 #include <USBComposite.h>
 
-#define SWITCH_CONTROLLER_VENDOR_ID 0x0F0D
-#define SWITCH_CONTROLLER_PRODUCT_ID 0x0092
+#define SWITCH_CONTROLLER_VENDOR_ID  0x0F0D
+#define SWITCH_CONTROLLER_PRODUCT_ID 0x00c1 // HORIPAD
 
 const uint8_t reportDescription[] = {
   0x05, 0x01,           /*  Usage Page (Generic Desktop) */ \
@@ -14,11 +14,13 @@ const uint8_t reportDescription[] = {
   0x35, 0x00,           /*  Physical Minimum (0) */ \
   0x45, 0x01,           /*  Physical Maximum (1) */ \
   0x75, 0x01,           /*  Report Size (1) */ \
-  0x95, 0x10,           /*  Report Count (16) */ \
+  0x95, 0x0e,           /*  Report Count (16) */ \
   0x05, 0x09,           /*  Usage Page (9) */ \
   0x19, 0x01,           /*  Usage Minimum (1) */ \
-  0x29, 0x10,           /*  Usage Maximum (16) */ \
+  0x29, 0x0e,           /*  Usage Maximum (16) */ \
   0x81, 0x02,           /*  Input (Data,Var,Abs) */ \
+  0x95, 0x02,
+  0x81, 0x01,
   /* HAT Switch */ \
   0x05, 0x01,           /*  Usage Page (1) */ \
   0x25, 0x07,           /*  Logical Maximum (7) */ \
@@ -40,17 +42,12 @@ const uint8_t reportDescription[] = {
   0x09, 50,             /*  Usage (50) */ \
   0x09, 53,             /*  Usage (53) */ \
   0x75, 0x08,           /*  Report Size (8) */ \
-  0x95, 0x04,           /*  Report Count (4) */ \
-  0x81, 0x02,           /*  Input (Data,Var,Abs) */ \
-    /* vendor specific */ \
-  0x06, 65280 & 0xFF, 65280 >> 8,           /*  Usage Page (65280) */ \
-  0x09, 32,             /*  Usage (32) */ \
-  0x95, 0x01,           /*  Report Count (1) */ \
-  0x81, 0x02,           /*  Input (Data,Var,Abs) */ \
-    /* Output (8 bytes) mirror of inputs? */
-  0x0A, 9761 & 0xFF, 9761 >> 8,           /*  Usage (9761) */ \
-  0x95, 0x08,           /*  Report Count (1) */ \
-  0x91, 0x02,           /*  Output (2) */ \
+  0x95, 0x04,           /*  Report Count (4) */ 
+  0x81, 0x02,           /*  Input (Data,Var,Abs) */ 
+    /* vendor specific */ 
+  0x75, 0x08,           /*  Report Size (8) */ 
+  0x95, 0x01,           /*  Report Count (1) */ 
+  0x81, 0x01,           /*  Input (1) */ 
   0xC0,                 /*  End Collection */
 };
 
@@ -62,10 +59,7 @@ typedef struct {
   uint8_t leftY;
   uint8_t rightX;
   uint8_t rightY;
-  uint8_t ledTX:1;
-  uint8_t ledRX:1;
-  uint8_t magic:6;
-  //uint8_t magic_and_leds; /* Magic number and TX/RX LED state */
+  uint8_t pad;
 } __packed SwitchControllerReport_t;
 
 class HIDSwitchController : public HIDReporter {
@@ -104,24 +98,6 @@ public:
       BUTTON_EXTRA2 = 15,
   };
 
-
-/*  enum {
-      BUTTON_B = 0,
-      BUTTON_A = 1,
-      BUTTON_X = 2,
-      BUTTON_Y = 3,
-      BUTTON_CAPTURE = 4,
-      BUTTON_L = 5,
-      BUTTON_R = 6,
-      BUTTON_ZL = 7,
-      BUTTON_ZR = 8,
-      BUTTON_MINUS = 9,
-      BUTTON_PLUS = 10,
-      BUTTON_HOME = 11,
-      BUTTON_LEFT_CLICK = 12,
-      BUTTON_RIGHT_CLICK = 13,
-  }; */
-
   void button(uint8_t b, bool val) {
     uint16_t mask = ((uint16_t)1 << b);
 
@@ -152,14 +128,6 @@ public:
     report.rightY = v;
   }
 
-  void ledTX(bool v) {
-    report.ledTX = v ? 1 : 0;
-  }
- 
-  void ledRX(bool v) {
-    report.ledRX = v ? 1 : 0;
-  }
-  
   HIDSwitchController(USBHID& HID) 
             : HIDReporter(HID, NULL, (uint8_t*)&report, sizeof(report), 0) {
         report.reportID = 0; 
@@ -169,9 +137,7 @@ public:
         report.leftY = 128;
         report.rightX = 128;
         report.rightY = 128;
-        report.ledRX = 0;
-        report.ledTX = 0;
-        report.magic = 0xAC>>2;
+        report.pad = 0;
     }
 };
 
@@ -181,6 +147,8 @@ HIDSwitchController controller(HID);
 void setup() {
   USBComposite.setVendorId(SWITCH_CONTROLLER_VENDOR_ID);
   USBComposite.setProductId(SWITCH_CONTROLLER_PRODUCT_ID);
+  USBComposite.setProductString("HORIPAD S");
+  USBComposite.setManufacturerString("Omega Centauri Software");
   HID.setReportDescriptor(reportDescription, sizeof(reportDescription));
   HID.registerComponent();
   USBComposite.begin();  
